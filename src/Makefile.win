@@ -1,0 +1,7 @@
+all: semtmb.dll
+
+semtmb.dll: semtmb.cpp
+	Rscript --vanilla -e "TMB::compile('semtmb.cpp')"
+
+clean:
+	rm -rf *o
