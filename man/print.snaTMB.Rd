@@ -9,6 +9,10 @@
 }
 \arguments{
 \item{x}{Object class snaTMB}
+
+\item{digits}{Minimal number of significant digits, see \code{\link{print.default}}.}
+
+\item{\dots}{Additional arguments for \code{\link{print.default}}.}
 }
 \description{
 Print snaTMB output

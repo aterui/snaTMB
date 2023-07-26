@@ -4,14 +4,12 @@
 \alias{format_fixef}
 \title{Format fixed effects}
 \usage{
-format_fixef(sdr, tmbArg, DF = NULL)
+format_fixef(sdr, tmb_arg)
 }
 \arguments{
-\item{sdr}{Output from \code{TMB::sdreport()}}
+\item{sdr}{Output from \code{TMB::sdreport}}
 
-\item{tmbArg}{Output from \code{snaTMB::getArg()}}
-
-\item{DF}{Degree of freedom for Student-t distribution}
+\item{tmb_arg}{Output from \code{snaTMB::get_arg}}
 }
 \description{
 Format fixed effects

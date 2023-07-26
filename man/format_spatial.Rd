@@ -4,14 +4,14 @@
 \alias{format_spatial}
 \title{Format spatial effects}
 \usage{
-format_spatial(sdr, tmbArg, full = FALSE)
+format_spatial(sdr, tmb_arg, full = FALSE)
 }
 \arguments{
-\item{sdr}{Output from \code{TMB::sdreport()}}
+\item{sdr}{Output from \code{TMB::sdreport}}
 
-\item{tmbArg}{Output from \code{snaTMB::getArg()}}
+\item{tmb_arg}{Output from \code{snaTMB::get_arg}}
 
-\item{full}{Logical. Full report with SEs if \code{TRUE}.}
+\item{full}{Logical. If TRUE, standard errors are printed.}
 }
 \description{
 Format spatial effects

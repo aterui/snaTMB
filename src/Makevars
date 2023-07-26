@@ -1,4 +1,2 @@
 PKG_CPPFLAGS = -DTMBAD_FRAMEWORK
-CXX14FLAGS = -Wa,-mbig-obj snaTMB.cpp, -03
-CXX11FLAGS = -03
-
+PKG_CXXFLAGS = -Wa,-mbig-obj

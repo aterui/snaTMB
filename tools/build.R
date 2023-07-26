@@ -4,7 +4,7 @@
 usethis::use_mit_license(copyright_holder = "Akira Terui")
 usethis::use_roxygen_md()
 usethis::use_namespace()
-usethis::use_package_doc()
+#usethis::use_package_doc()
 devtools::document()
 devtools::load_all()
 devtools::check(vignettes=FALSE)
@@ -12,7 +12,7 @@ devtools::check(vignettes=FALSE)
 
 # check syntax ------------------------------------------------------------
 
-# lintr::lint_package()
+lintr::lint_package()
 
 #usethis::use_coverage()
 # devtools::build(path='.')
@@ -31,22 +31,39 @@ devtools::check(vignettes=FALSE)
 
 # -------------------------------------------------------------------------
 
-library(dplyr)
-set.seed(12)
-N <- 200
-theta <- 10
-eps <- rnorm(N, sd = 0.1)
-X <- cbind(1, rnorm(N), rnorm(N))
-beta <- c(0.01, 0.8, 0.2)
+x <- snaTMB(Sepal.Length ~ Sepal.Width + (1 | Species), iris, inits = list(b = c(1, 1)))
+summary(x)
+report(x)
 
-D <- cbind(runif(N, 0, 1000), runif(N, 0, 1000)) %>%
-  dist(diag = TRUE, upper = TRUE) %>%
-  data.matrix()
-S <- 0.1 * exp(-D / theta)
+y <- lme4::lmer(Sepal.Length ~ Sepal.Width + (1 | Species), iris,
+                REML = F)
+summary(y)
 
-y_hat <- X %*% beta
-y <- mvtnorm::rmvnorm(1, mean = y_hat, sigma = S) %>% c()
+z <- glmmTMB::glmmTMB(Sepal.Length ~ Sepal.Width + (1 | Species), iris,
+                      REML = F)
+summary(z)
 
-df0 <- dplyr::tibble(x1 = X[,2], x2 = X[,3], y = y)
 
-semtmb(y ~ x1 + x2, data = df0)
+# spatial -----------------------------------------------------------------
+
+set.seed(1)
+coord <- cbind(rnorm(150), rnorm(150))
+D <- dist(coord)
+D <- data.matrix(D)
+R <- exp(-D)
+u <- MASS::mvrnorm(n = 1, rep(0, ncol(D)), Sigma = R)
+iris$y <- iris$Sepal.Length + u
+
+x <- snaTMB(y ~ Sepal.Width,
+            iris,
+            spatial = "exp",
+            D = D)
+x
+summary(x)
+
+
+pos <- glmmTMB::numFactor(coord)
+iris$g <- 1
+iris$pos <- pos
+fit <- glmmTMB::glmmTMB(y ~ Sepal.Width + exp(0 + pos|g), iris, dispformula = ~0)
+

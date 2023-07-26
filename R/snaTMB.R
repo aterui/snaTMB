@@ -1,3 +1,10 @@
+#' Spatial Network Analysis with TMB
+#' @aliases NULL snaTMB-package
+#' @useDynLib snaTMB
+#' @import RcppEigen TMB
+"_PACKAGE"
+
+
 #' Fit a spatial model with TMB
 #'
 #' @param formula An object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted.
@@ -9,13 +16,12 @@
 #' @param verbose Logical. If \code{TRUE}, print maximum gradient \code{mgc} components while fitting.
 #' @param inits A list of initial parameter values.
 #' @param control Optional arguments passed to \code{\link{nlminb}}.
-#' @useDynLib snaTMB
 #' @author Akira Terui, \email{hanabi0111@gmail.com}
 #' @export
 
 snaTMB <- function(formula,
                    data,
-                   family = gaussian(),
+                   family = stats::gaussian(),
                    spatial,
                    D,
                    W,
@@ -28,7 +34,7 @@ snaTMB <- function(formula,
 
   # call
   cl <- match.call()
-  tmbArg <- match.call(expand.dots = FALSE)
+  tmb_arg <- match.call(expand.dots = FALSE)
 
   # family check
   if (is.character(family)) family <- get(family, mode = "function", envir = parent.frame())
@@ -36,7 +42,7 @@ snaTMB <- function(formula,
   if (is.null(family)) stop("'family' not recognized")
 
   # distance and sptial weight matrix
-  if (!missing(W) & missing(D)) stop("Argument 'D' (distance matrix) is required to build a spatial model")
+  if (!missing(W) && missing(D)) stop("Argument 'D' (distance matrix) is required to build a spatial model")
 
   if (!missing(D)) {
     if (!is.matrix(D)) {
@@ -52,11 +58,11 @@ snaTMB <- function(formula,
   # get arguments for fitTMB ------------------------------------------------
 
   index <- match(x = c("formula", "data", "spatial", "D", "W"),
-                 table = names(tmbArg),
+                 table = names(tmb_arg),
                  nomatch = 0L)
-  tmbArg <- tmbArg[c(1L, index)]
+  tmb_arg <- tmb_arg[c(1L, index)]
 
-  tmbArg$family <- family
+  tmb_arg$family <- family
 
   if (!missing(spatial)) {
     if (missing(D)) stop("Argument 'D' (distance matrix) is required to build a spatial model")
@@ -67,25 +73,25 @@ snaTMB <- function(formula,
   } else {
     if (!missing(D)) {
       message("Note: distance matrix D is supplied - a spatial exponential model is assumed by default. Specify 'spatial' argument to choose different types of models")
-      tmbArg$spatial <- "exp"
+      tmb_arg$spatial <- "exp"
     }
   }
 
-  tmbArg[[1L]] <- quote(getArg)
-  tmbArg <- eval(tmbArg, envir = parent.frame())
+  tmb_arg[[1L]] <- quote(get_arg)
+  tmb_arg <- eval(tmb_arg, envir = parent.frame())
 
 
   # start values ------------------------------------------------------------
 
   if (!missing(inits)) {
-    parArg <- tmbArg$parArg
-    parnames <- names(parArg)
-    parsmap <- names(tmbArg$mapArg)
+    par_arg <- tmb_arg$par_arg
+    parnames <- names(par_arg)
+    parsmap <- names(tmb_arg$map_arg)
     initspars <- parnames[!parnames %in% parsmap]
 
     bl_par <- !(names(inits) %in% parnames)
     bl_map <- names(inits) %in% parsmap
-    n_elm_par <- sapply(parArg, length)
+    n_elm_par <- sapply(par_arg, length)
     n_elm_inits <- sapply(inits, length)
 
     if (!is.list(inits)) {
@@ -116,14 +122,14 @@ snaTMB <- function(formula,
                      paste(sQuote(mismatch), collapse = ","),
                      "\n",
                      "The expected lengths are:\n",
-                     paste0("length(", mismatch ,")",
+                     paste0("length(", mismatch, ")",
                             " = ",
                             n_elm_par[names(n_elm_par) %in% mismatch],
                             collapse = ", ")))
         } else {
           index <- intersect(parnames, names(inits))
-          tmbArg$parArg <- modifyList(x = parArg,
-                                      val = inits[index])
+          tmb_arg$par_arg <- utils::modifyList(x = par_arg,
+                                             val = inits[index])
         }
 
       }
@@ -133,7 +139,7 @@ snaTMB <- function(formula,
   # distribution compatibility ----------------------------------------------
 
   if (grepl("nbinom|pois", family$family)) {
-    eta <- tmbArg$dataArg$y
+    eta <- tmb_arg$data_arg$y
     if (any(abs(eta - round(eta)) > 0.001)) {
       stop(sprintf("non-integer counts in a %s model",
                    family$family))
@@ -143,9 +149,8 @@ snaTMB <- function(formula,
   # fit TMB model -----------------------------------------------------------
 
   # fitTMB passes arguments to TMB::MakeADFun() and stats::nlminb()
-  opt <- fitTMB(tmbArg, verbose, control)
+  opt <- fitTMB(tmb_arg, verbose, control)
   opt$call <- cl
 
   opt
 }
-

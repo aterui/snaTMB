@@ -1,19 +1,14 @@
 #' Get arguments for MakeADfun
 #'
-#' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted.
-#' @param data a data frame containing the variables in the model.
-#' @param family a probability distribution used as an error distribution
-#' @param D distance matrix
-#' @param W spatial weight matrix
-#' @author Akira Terui, \email{hanabi0111@gmail.com}
+#' @inheritParams snaTMB
 #' @export
 
-getArg <- function(formula,
-                   data,
-                   family,
-                   spatial = NULL,
-                   D = NULL,
-                   W = NULL) {
+get_arg <- function(formula,
+                    data,
+                    family,
+                    spatial = NULL,
+                    D = NULL,
+                    W = NULL) {
 
   # create base arguments for MakeADFun -------------------------------------
 
@@ -23,32 +18,32 @@ getArg <- function(formula,
   if (!re_term) {
     # class glm (no random effect)
     fr <- stats::model.frame(formula, data)
-    trm <- terms(fr)
+    trm <- stats::terms(fr)
 
     y <- fr[, attr(trm, "response")]
     X <- stats::model.matrix(formula, data)
-    Z <- as(matrix(0, nrow(fr), 1L), "TsparseMatrix")
+    Z <- methods::as(matrix(0, nrow(fr), 1L), "TsparseMatrix")
     term <- list(list(n_fix = 1L,
                       n_group = 1L,
                       n_param = 1L))
 
-    dataArg <- list(y = y,
-                    X = X,
-                    Z = Z,
-                    term = term)
-    parArg <- list(b = rep(1, ncol(X)),
-                   log_sigma = log(1),
-                   log_theta = log(1),
-                   v = rep(0, ncol(Z)))
-    reArg <- rlist <- NULL
-    mapArg <- list(log_theta = factor(NA),
-                   v = factor(rep(NA, ncol(Z))))
+    data_arg <- list(y = y,
+                     X = X,
+                     Z = Z,
+                     term = term)
+    par_arg <- list(b = rep(1, ncol(X)),
+                    log_sigma = log(1),
+                    log_theta = log(1),
+                    v = rep(0, ncol(Z)))
+    re_arg <- rlist <- NULL
+    map_arg <- list(log_theta = factor(NA),
+                    v = factor(rep(NA, ncol(Z))))
 
   } else {
     # class glmm (with non-spatial random effect)
     rlist <- lme4::lFormula(formula, data)
     fr <- rlist$fr
-    trm <- terms(fr)
+    trm <- stats::terms(fr)
 
     y <- fr[, attr(trm, "response")]
     X <- rlist$X
@@ -59,63 +54,67 @@ getArg <- function(formula,
     n_group <- as.vector(reTrms$nl)
     n_param <- as.vector(sapply(n_fix, function(x) choose(x, 2L) + x))
 
-    term <- lapply(1L:length(reTrms$flist), function(i) {
-      list(n_fix = n_fix[i],
-           n_group = n_group[i],
-           n_param = n_param[i])
-    })
+    term <- lapply(seq_len(length(reTrms$flist)),
+                   function(i) {
+                     list(n_fix = n_fix[i],
+                          n_group = n_group[i],
+                          n_param = n_param[i])
+                   })
 
     # initial values for var-cov matrices
-    init_log_theta <- unlist(sapply(1L:length(reTrms$flist), function(i) {
-      c(rep(log(1), n_fix[i]), # diagonal elements
-        rep(0, choose(n_fix[i], 2L))) # off-diagonal elements
-    }))
+    init_log_theta <- unlist(sapply(seq_len(length(reTrms$flist)),
+                                    function(i) {
+                                      # 1st-L: diagonal elements
+                                      # 2nd-L: off-diagonal elements
+                                      c(rep(log(1), n_fix[i]),
+                                        rep(0, choose(n_fix[i], 2L)))
+                                    }))
 
     Zlist <- lapply(reTrms$Ztlist,
                     function(x) t(as.matrix(x)))
-    Z <- as(do.call(cbind, Zlist), "TsparseMatrix")
+    Z <- methods::as(do.call(cbind, Zlist), "TsparseMatrix")
 
-    dataArg <- list(y = y,
-                    X = X,
-                    Z = Z,
-                    term = term)
-    parArg <- list(b = rep(0, ncol(X)),
-                   log_sigma = 0,
-                   log_theta = init_log_theta,
-                   v = rep(0, ncol(Z)))
-    reArg <- c("v")
-    mapArg <- list()
+    data_arg <- list(y = y,
+                     X = X,
+                     Z = Z,
+                     term = term)
+    par_arg <- list(b = rep(0, ncol(X)),
+                    log_sigma = 0,
+                    log_theta = init_log_theta,
+                    v = rep(0, ncol(Z)))
+    re_arg <- c("v")
+    map_arg <- list()
   } # ifelse
 
 
   # spatial random effect ---------------------------------------------------
 
-  if(is.null(spatial)) {
+  if (is.null(spatial)) {
     # non-spatial model
-    dataArg$D <- matrix(0, nrow = 1L, ncol = 1L)
-    dataArg$W <- matrix(1, nrow = 1L, ncol = 1L)
-    parArg$u <- rep(0, nrow(fr))
-    mapArg$u <- factor(rep(NA, nrow(fr)))
-    mapArg$log_phi <- factor(NA)
-    mapArg$log_lambda <- factor(NA)
+    data_arg$D <- matrix(0, nrow = 1L, ncol = 1L)
+    data_arg$W <- matrix(1, nrow = 1L, ncol = 1L)
+    par_arg$u <- rep(0, nrow(fr))
+    map_arg$u <- factor(rep(NA, nrow(fr)))
+    map_arg$log_phi <- factor(NA)
+    map_arg$log_lambda <- factor(NA)
   } else {
     # spatial model
-    dataArg$D <- D
+    data_arg$D <- D
 
     if (is.null(W)) {
-      dataArg$W <- matrix(1, nrow = nrow(D), ncol = ncol(D))
+      data_arg$W <- matrix(1, nrow = nrow(D), ncol = ncol(D))
     } else {
-      dataArg$W <- W
+      data_arg$W <- W
     }
 
-    parArg$u <- rep(0, nrow(fr))
-    parArg$log_sigma <- log(sqrt(.Machine$double.eps))
-    reArg <- c(reArg, "u")
-    mapArg$log_sigma <- factor(NA)
+    par_arg$u <- rep(0, nrow(fr))
+    par_arg$log_sigma <- log(sqrt(.Machine$double.eps))
+    re_arg <- c(re_arg, "u")
+    map_arg$log_sigma <- factor(NA)
   }
 
-  parArg$log_phi <- 0
-  parArg$log_lambda <- 0
+  par_arg$log_phi <- 0
+  par_arg$log_lambda <- 0
 
   # family specific arguments -----------------------------------------------
 
@@ -128,34 +127,33 @@ getArg <- function(formula,
                      poisson = 1L)
 
   # for no-variance family
-  if (fam$family %in% c("poisson")) mapArg$log_sigma <- factor(NA)
+  if (fam$family %in% c("poisson")) map_arg$log_sigma <- factor(NA)
 
   # family and link code
-  dataArg$link <- .valid_link[fam$link]
-  dataArg$family <- .valid_family[fam$family]
-
+  data_arg$link <- .valid_link[fam$link]
+  data_arg$family <- .valid_family[fam$family]
 
   # offset term -------------------------------------------------------------
 
   if (!is.null(attr(trm, "offset"))) {
     # column index for offset terms
     offcol <- attr(trm, "offset")
-    Xi <- fr[ , offcol]
+    Xi <- fr[, offcol]
 
     # sum across offset columns if more than one term
     if (length(offcol) > 1) xi <- rowSums(Xi) else xi <- Xi
 
-    dataArg$xi <- xi
+    data_arg$xi <- xi
   } else {
-    dataArg$xi <- rep(0, nrow(fr))
+    data_arg$xi <- rep(0, nrow(fr))
   }
 
   # return ------------------------------------------------------------------
 
-  list_out <- list(dataArg = dataArg,
-                   parArg = parArg,
-                   reArg = reArg,
-                   mapArg = mapArg,
+  list_out <- list(data_arg = data_arg,
+                   par_arg = par_arg,
+                   re_arg = re_arg,
+                   map_arg = map_arg,
                    fam = fam,
                    rlist = rlist,
                    spatial = spatial)
@@ -165,24 +163,25 @@ getArg <- function(formula,
 
 
 #' Fit TMB model
-#' @param tmbArg An object from \code{getArg()} containing arguments for \code{TMB::MakeADFun()}
+#'
+#' @param tmb_arg An object from \code{\link{get_arg}} containing arguments for \code{TMB::MakeADFun}
 #' @param verbose Logical. If \code{TRUE}, print maximum gradient \code{mgc} components while fitting.
-#' @param control Optional control arguments for \code{nlminb()}. Supply as \code{list()}.
+#' @param control Optional control arguments for \code{\link{nlminb}}. Supply as \code{list()}.
 #' @export
 
-fitTMB <- function(tmbArg,
+fitTMB <- function(tmb_arg,
                    verbose = FALSE,
                    control = list()) {
 
   # apply MakeADFun
-  obj <- with(tmbArg,
-              TMB::MakeADFun(data = dataArg,
-                             parameters = parArg,
-                             map = mapArg,
-                             profile = NULL,
-                             random = reArg,
-                             DLL = "snaTMB",
-                             silent = !verbose))
+  obj <- with(tmb_arg,
+              MakeADFun(data = data_arg,
+                        parameters = par_arg,
+                        map = map_arg,
+                        profile = NULL,
+                        random = re_arg,
+                        DLL = "snaTMB",
+                        silent = !verbose))
 
   # fit TMB model
   fit <- with(obj,
@@ -194,15 +193,15 @@ fitTMB <- function(tmbArg,
   attr(fit, which = "inits") <- obj$par
   attr(fit, which = "method") <- obj$method
   attr(fit, which = "report") <- obj$report()
-  attr(fit, which = "map") <- with(tmbArg, names(mapArg))
+  attr(fit, which = "map") <- with(tmb_arg, names(map_arg))
 
   # sd report
-  sdr <- TMB::sdreport(obj, getJointPrecision = TRUE)
+  sdr <- sdreport(obj, getJointPrecision = TRUE)
 
   # return
   list_out <- list(fit = fit,
                    sdr = sdr,
-                   tmbArg = tmbArg)
+                   tmb_arg = tmb_arg)
 
   class(list_out) <- "snaTMB"
 
@@ -211,87 +210,78 @@ fitTMB <- function(tmbArg,
 
 
 #' Report estimation tables with SEs
+#'
 #' @param x Object class snaTMB
 #' @export
 
 report <- function(x) {
-  if (class(x) != "snaTMB") stop("'x' must be calss 'snaTMB'")
+  if (!inherits(x, "snaTMB")) stop("'x' must be calss 'snaTMB'")
 
   fit <- x$fit
   sdr <- x$sdr
-  tmbArg <- x$tmbArg
-  rlist <- tmbArg$rlist
-  p_table <- TMB::summary.sdreport(sdr, "report")
+  tmb_arg <- x$tmb_arg
+  rlist <- tmb_arg$rlist
+  p_table <- summary.sdreport(sdr, "report")
   rows <- rownames(p_table)
 
   # n observations
-  nobs <- nrow(tmbArg$dataArg$X)
+  nobs <- nrow(tmb_arg$data_arg$X)
 
   # exclude dummy parameters
-  pmap <- stringr::str_remove_all(names(tmbArg$mapArg), "^log_")
-  p_table <- p_table[-which(rows %in% pmap),]
+  pmap <- stringr::str_remove_all(names(tmb_arg$map_arg), "^log_")
+  p_table <- p_table[-which(rows %in% pmap), ]
 
   np <- nrow(p_table)
 
-  if (tmbArg$fam$family %in% "gaussian" &
-      is.null(tmbArg$spatial)) np <- np + 1
+  if (tmb_arg$fam$family %in% "gaussian" && is.null(tmb_arg$spatial))
+    np <- np + 1
 
-  DF <- nobs - np
+  dfr <- nobs - np
 
   # return
-  list_out <- list(fixef = format_fixef(sdr, tmbArg, DF))
-  if (!is.null(rlist)) list_out$ranef <- format_ranef(fit, sdr, tmbArg, full = TRUE)
-  if (!is.null(tmbArg$spatial)) list_out$spatial <- format_spatial(sdr, tmbArg, full = TRUE)
+  list_out <- list(fixef = format_fixef(sdr, tmb_arg))
+  if (!is.null(rlist)) list_out$ranef <- format_ranef(fit, sdr, tmb_arg, full = TRUE)
+  if (!is.null(tmb_arg$spatial)) list_out$spatial <- format_spatial(sdr, tmb_arg, full = TRUE)
 
   return(list_out)
 }
 
 
 #' Format fixed effects
-#' @param sdr Output from \code{TMB::sdreport()}
-#' @param tmbArg Output from \code{snaTMB::getArg()}
-#' @param DF Degree of freedom for Student-t distribution
+#'
+#' @inheritParams format_ranef
 #' @export
 
-format_fixef <- function(sdr, tmbArg, DF = NULL) {
+format_fixef <- function(sdr, tmb_arg) {
 
-  p_table <- TMB::summary.sdreport(sdr, "report")
-  df_b <- data.frame(Terms = colnames(tmbArg$dataArg$X),
-                     Estimate = p_table[1:ncol(tmbArg$dataArg$X), 1L],
-                     S.E. = p_table[1:ncol(tmbArg$dataArg$X), 2L],
+  p_table <- summary.sdreport(sdr, "report")
+  df_b <- data.frame(Terms = colnames(tmb_arg$data_arg$X),
+                     Estimate = p_table[seq_len(ncol(tmb_arg$data_arg$X)), 1L],
+                     S.E. = p_table[seq_len(ncol(tmb_arg$data_arg$X)), 2L],
                      row.names = NULL)
 
-  if (tmbArg$fam$family %in% "gaussian") {
-    # report t-values if gaussian
-    v <- df_b$`t-value` <- ifelse(df_b$S.E. > 0,
-                                  df_b$Estimate / df_b$S.E.,
-                                  NaN)
+  v <- df_b$`z-value` <- ifelse(df_b$S.E. > 0,
+                                df_b$Estimate / df_b$S.E.,
+                                NaN)
 
-    df_b$`Pr(>|t|)` <- 2 * pt(abs(v), df = DF, lower.tail = FALSE)
-  } else {
-    # report z-values if non-gaussian
-    v <- df_b$`z-value` <- ifelse(df_b$S.E. > 0,
-                                  df_b$Estimate / df_b$S.E.,
-                                  NaN)
-
-    df_b$`Pr(>|z|)` <- 2 * pnorm(abs(v), lower.tail = FALSE)
-  }
+  df_b$`Pr(>|z|)` <- 2 * stats::pnorm(abs(v), lower.tail = FALSE)
 
   return(df_b)
 }
 
 
 #' Format random effects
-#' @param fit Output from \code{\link{snaTMB::snaTMB}}
-#' @param sdr Output from \code{\link{TMB::sdreport}}
-#' @param tmbArg Output from \code{\link{snaTMB::getArg}}
+#'
+#' @param fit Output from \code{snaTMB::snaTMB}
+#' @param sdr Output from \code{TMB::sdreport}
+#' @param tmb_arg Output from \code{snaTMB::get_arg}
 #' @param full Logical. If TRUE, standard errors are printed.
 #' @export
 
-format_ranef <- function(fit, sdr, tmbArg, full = FALSE) {
+format_ranef <- function(fit, sdr, tmb_arg, full = FALSE) {
   # v_theta: random effect sd, vector
   # R: correlation matrix
-  p_table <- TMB::summary.sdreport(sdr, "report")
+  p_table <- summary.sdreport(sdr, "report")
   v_theta <- p_table[which(rownames(p_table) == "theta"), 1L]
   v_theta_sd <- p_table[which(rownames(p_table) == "theta"), 2L]
   R <- attr(fit, "report")$cor
@@ -309,22 +299,23 @@ format_ranef <- function(fit, sdr, tmbArg, full = FALSE) {
   # v_recol: random effect columns
   # v_f: random name assignment to theta vector
   # list_theta: named list for random sds
-  list_fix <- tmbArg$rlist$reTrms$cnms
+  list_fix <- tmb_arg$rlist$reTrms$cnms
   v_recol <- names(list_fix)
   nr <- length(v_recol)
-  v_np <- sapply(tmbArg$dataArg$term, function(x) x$n_param)
-  v_nf <- sapply(tmbArg$dataArg$term, function(x) x$n_fix)
-  v_f <- unlist(sapply(1:length(v_recol), function(i) rep(v_recol[i], v_np[i])))
+  v_np <- sapply(tmb_arg$data_arg$term, function(x) x$n_param)
+  v_nf <- sapply(tmb_arg$data_arg$term, function(x) x$n_fix)
+  v_f <- unlist(sapply(seq_len(length(v_recol)),
+                       function(i) rep(v_recol[i], v_np[i])))
   list_theta <- split(v_theta, v_f)
   list_theta_sd <- split(v_theta_sd, v_f)
 
-  list_table <- lapply(1:nr, function(i) {
+  list_table <- lapply(seq_len(nr), function(i) {
     d0 <- data.frame(Groups = rep(v_recol[i], v_nf[i]),
                      Terms = list_fix[[i]],
-                     Std.Dev. = head(list_theta[[i]], n = v_nf[i]),
+                     Std.Dev. = utils::head(list_theta[[i]], n = v_nf[i]),
                      row.names = NULL)
 
-    if (full) d0$S.E. <- head(list_theta_sd[[i]], n = v_nf[i])
+    if (full) d0$S.E. <- utils::head(list_theta_sd[[i]], n = v_nf[i])
 
     if (any(v_Rdim > 0)) {
       if (v_Rdim[i] == 0) {
@@ -353,14 +344,13 @@ format_ranef <- function(fit, sdr, tmbArg, full = FALSE) {
 
 
 #' Format spatial effects
-#' @param sdr Output from \code{TMB::sdreport()}
-#' @param tmbArg Output from \code{snaTMB::getArg()}
-#' @param full Logical. Full report with SEs if \code{TRUE}.
+#'
+#' @inheritParams format_ranef
 #' @export
 
-format_spatial <- function(sdr, tmbArg, full = FALSE) {
+format_spatial <- function(sdr, tmb_arg, full = FALSE) {
 
-  p_table <- TMB::summary.sdreport(sdr, "report")
+  p_table <- summary.sdreport(sdr, "report")
   rowid <- which(rownames(p_table) %in% c("lambda", "phi"))
 
   if (full) {

@@ -4,12 +4,16 @@
 \alias{format_ranef}
 \title{Format random effects}
 \usage{
-format_ranef(sdr, tmbArg)
+format_ranef(fit, sdr, tmb_arg, full = FALSE)
 }
 \arguments{
-\item{sdr}{Output from \code{TMB::sdreport()}}
+\item{fit}{Output from \code{snaTMB::snaTMB}}
 
-\item{tmbArg}{Output from \code{snaTMB::getArg()}}
+\item{sdr}{Output from \code{TMB::sdreport}}
+
+\item{tmb_arg}{Output from \code{snaTMB::get_arg}}
+
+\item{full}{Logical. If TRUE, standard errors are printed.}
 }
 \description{
 Format random effects

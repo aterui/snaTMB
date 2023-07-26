@@ -7,7 +7,7 @@
 snaTMB(
   formula,
   data,
-  family = gaussian(),
+  family = stats::gaussian(),
   spatial,
   D,
   W,

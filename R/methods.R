@@ -8,8 +8,8 @@
 #' @export
 
 fixef.snaTMB <- function(object, ...) {
-  xlabels <- colnames(object$tmbArg$dataArg$X)
-  b_table <- TMB::summary.sdreport(object$sdr, "report")[, 1L]
+  xlabels <- colnames(object$tmb_arg$data_arg$X)
+  b_table <- summary.sdreport(object$sdr, "report")[, 1L]
   b_table <- b_table[which(names(b_table) == "b")]
   names(b_table) <- xlabels
   return(b_table)
@@ -23,7 +23,7 @@ fixef.snaTMB <- function(object, ...) {
 #' @export
 
 vcov.snaTMB <- function(object, ...) {
-  xlabels <- colnames(object$tmbArg$dataArg$X)
+  xlabels <- colnames(object$tmb_arg$data_arg$X)
   m <- object$sdr$cov.fixed
   b_index <- which(colnames(m) == "b")
   m <- data.matrix(m[b_index, b_index])
@@ -34,6 +34,8 @@ vcov.snaTMB <- function(object, ...) {
 
 #' Print snaTMB output
 #' @param x Object class snaTMB
+#' @param digits Minimal number of significant digits, see \code{\link{print.default}}.
+#' @param \dots Additional arguments for \code{\link{print.default}}.
 #' @aliases print print.snaTMB
 #' @export
 
@@ -50,22 +52,24 @@ print.snaTMB <- function(x,
                   digits = digits,
                   print.gap = 2L,
                   quote = FALSE)
-  } else cat("No coefficients\n")
+  } else {
+    cat("No coefficients\n")
+  }
   cat("\n")
 
   # random effects
-  if (!is.null(x$tmbArg$rlist)) {
+  if (!is.null(x$tmb_arg$rlist)) {
     cat("Random effects:\n")
-    print.data.frame(snaTMB::format_ranef(x$fit, x$sdr, x$tmbArg),
+    print.data.frame(snaTMB::format_ranef(x$fit, x$sdr, x$tmb_arg),
                      digits = digits,
                      row.names = FALSE)
     cat("\n")
   }
 
   # spatial random effects
-  if (!is.null(x$tmbArg$spatial)) {
+  if (!is.null(x$tmb_arg$spatial)) {
     cat("Spatial random effects:\n")
-    print.data.frame(snaTMB::format_spatial(x$sdr, x$tmbArg),
+    print.data.frame(snaTMB::format_spatial(x$sdr, x$tmb_arg),
                      digits = digits,
                      row.names = FALSE)
     cat("\n")
@@ -77,6 +81,7 @@ print.snaTMB <- function(x,
 
 #' Summarize snaTMB output
 #' @param object An object for which a summary is desired.
+#' @param digits Minimal number of significant digits, see \code{\link{print.default}}.
 #' @param \dots Additional arguments affecting the summary produced.
 #' @aliases summary summary.snaTMB
 #' @export
@@ -88,43 +93,43 @@ summary.snaTMB <- function(object,
   # model information -------------------------------------------------------
   fit <- object$fit
   sdr <- object$sdr
-  p_table <- TMB::summary.sdreport(sdr, "report")
-  tmbArg <- object$tmbArg
-  rlist <- object$tmbArg$rlist
+  p_table <- summary.sdreport(sdr, "report")
+  tmb_arg <- object$tmb_arg
+  rlist <- object$tmb_arg$rlist
 
   # n observations
-  nobs <- nrow(tmbArg$dataArg$X)
+  nobs <- nrow(tmb_arg$data_arg$X)
 
   # n parameters
-  fixef_np <- ncol(tmbArg$dataArg$X)
+  fixef_np <- ncol(tmb_arg$data_arg$X)
   ranef_np <- ifelse(is.null(rlist),
                      yes = 0,
-                     no = sum(sapply(tmbArg$dataArg$term, function(x) x$n_param)))
-  spatial_np <- ifelse(is.null(tmbArg$spatial),
+                     no = sum(sapply(tmb_arg$data_arg$term, function(x) x$n_param)))
+  spatial_np <- ifelse(is.null(tmb_arg$spatial),
                        yes = 0,
                        no = 2) # lambda and phi
 
   np <- fixef_np + ranef_np + spatial_np
 
-  if (tmbArg$fam$family %in% "gaussian" & is.null(tmbArg$spatial))
+  if (tmb_arg$fam$family %in% "gaussian" && is.null(tmb_arg$spatial))
     np <- np + 1
 
   # degrees of freedom
-  DF <- ifelse(nobs > np, nobs - np, NaN)
+  dfr <- ifelse(nobs > np, nobs - np, NaN)
 
   # fixed effects -----------------------------------------------------------
 
   # format_fixef(): utility function
-  df_b <- snaTMB::format_fixef(sdr, tmbArg, DF)
+  df_b <- snaTMB::format_fixef(sdr, tmb_arg)
 
   # random effects ----------------------------------------------------------
 
   # format_ranef(): utility function
-  if (!is.null(rlist)) df_re <- snaTMB::format_ranef(fit, sdr, tmbArg)
+  if (!is.null(rlist)) df_re <- snaTMB::format_ranef(fit, sdr, tmb_arg)
 
   # spatial effects ---------------------------------------------------------
 
-  if (!is.null(tmbArg$spatial)) df_spatial <- snaTMB::format_spatial(sdr, tmbArg)
+  if (!is.null(tmb_arg$spatial)) df_spatial <- snaTMB::format_spatial(sdr, tmb_arg)
 
   # likelihood + others -----------------------------------------------------
 
@@ -136,7 +141,7 @@ summary.snaTMB <- function(object,
                   `BIC` = bic,
                   `logLik` = loglik,
                   `Deviance` = dev,
-                  `df.resid` = DF)
+                  `df.resid` = dfr)
 
   # print -------------------------------------------------------------------
 
@@ -145,8 +150,8 @@ summary.snaTMB <- function(object,
   cat("\n")
 
   # fixed effects
-  cat("Fixed effects: \n");
-  if (sum(dim(tmbArg$dataArg$X)) > 0) {
+  cat("Fixed effects: \n")
+  if (sum(dim(tmb_arg$data_arg$X)) > 0) {
     print.data.frame(df_b,
                      digits = digits,
                      row.names = FALSE,
@@ -158,17 +163,17 @@ summary.snaTMB <- function(object,
 
   # non-spatial random effects
   if (!is.null(rlist)) {
-    cat("Random effects: \n");
+    cat("Random effects: \n")
     print.data.frame(df_re,
                      digits = digits,
                      row.names = FALSE,
                      na.print = "",
                      ...)
-    cat("\n");
+    cat("\n")
   }
 
   # spatial random effects
-  if (!is.null(tmbArg$spatial)) {
+  if (!is.null(tmb_arg$spatial)) {
     cat(paste0("Spatial random effects: \n"))
     print.data.frame(df_spatial,
                      digits = digits,
@@ -178,14 +183,12 @@ summary.snaTMB <- function(object,
   }
 
   # family-specific dispersion
-  if (tmbArg$fam$family %in% "gaussian") {
-    cat(paste0("Family specific dispersion (", tmbArg$fam$family, "): ",
+  if (tmb_arg$fam$family %in% "gaussian") {
+    cat(paste0("Family specific dispersion (", tmb_arg$fam$family, "): ",
                format(p_table[which(rownames(p_table) == "sigma"), "Estimate"],
                       digits = digits)))
     cat("\n")
-    if (!is.null(tmbArg$spatial)) cat("Note: family-specific dispersion parameter is fixed at zero to avoid overparameterization (non-spatial standard deviation represents a comaptible dispersion parameter)")
+    if (!is.null(tmb_arg$spatial)) cat("Note: family-specific dispersion parameter is fixed at zero to avoid overparameterization (non-spatial standard deviation represents a comaptible dispersion parameter)")
   }
 
 }
-
-

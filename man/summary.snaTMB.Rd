@@ -10,6 +10,8 @@
 \arguments{
 \item{object}{An object for which a summary is desired.}
 
+\item{digits}{Minimal number of significant digits, see \code{\link{print.default}}.}
+
 \item{\dots}{Additional arguments affecting the summary produced.}
 }
 \description{
