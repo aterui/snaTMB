@@ -107,6 +107,9 @@ Type objective_function<Type>::operator() () {
   //reporting ------------------------------------------------------------------
 
   REPORT(cor);
+  REPORT(eta);
+  REPORT(v);
+  REPORT(u);
 
   ADREPORT(b);
   ADREPORT(sigma);
