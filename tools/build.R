@@ -3,6 +3,7 @@
 
 usethis::use_mit_license(copyright_holder = "Akira Terui")
 usethis::use_roxygen_md()
+usethis::use_namespace()
 usethis::use_package_doc()
 devtools::document()
 devtools::load_all()
@@ -31,7 +32,7 @@ devtools::check(vignettes=FALSE)
 # -------------------------------------------------------------------------
 
 library(dplyr)
-set.seed(121)
+set.seed(12)
 N <- 200
 theta <- 10
 eps <- rnorm(N, sd = 0.1)

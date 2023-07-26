@@ -4,7 +4,7 @@
 \name{snaTMB-package}
 \alias{snaTMB}
 \alias{snaTMB-package}
-\title{snaTMB: Stream Network Analysis with Template Model Builder}
+\title{snaTMB: Spatial Network Analysis with Template Model Builder}
 \description{
 snaTMB provides a set of function to perform spatial analysis in stream networks.
 }

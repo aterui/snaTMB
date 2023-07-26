@@ -1,7 +1,7 @@
-all: semtmb.so
+all: snaTMB.so
 
-semtmb.so: semtmb.cpp
-	Rscript --vanilla -e "TMB::compile('semtmb.cpp','-O0 -g')"
+snaTMB.so: snaTMB.cpp
+	Rscript --vanilla -e "TMB::compile('snaTMB.cpp','-O0 -g')"
 
 clean:
 	rm -rf *o
