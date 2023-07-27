@@ -3,15 +3,21 @@
 \name{vcov.snaTMB}
 \alias{vcov.snaTMB}
 \alias{vcov}
-\title{Get variance-covariance for fixed effects}
+\title{Calculate Variance-Covariance Matrix for a Fitted Model Object}
 \usage{
 \method{vcov}{snaTMB}(object, ...)
 }
 \arguments{
-\item{object}{A fitted model object, typically.}
+\item{object}{
+    a fitted model object, typically.  Sometimes also a
+    \code{\link{summary}()} object of such a fitted model.
+  }
 
-\item{\dots}{Additional arguments. Currently none.}
+\item{...}{
+    additional arguments for method functions.  For the
+    \code{\link[stats]{glm}} method this can be used to pass a
+    \code{dispersion} parameter.}
 }
 \description{
-Get variance-covariance for fixed effects
+Returns the variance-covariance matrix of the main parameters of a fitted model object. The “main” parameters of model correspond to those returned by \code{\link{coef}}, and typically do not contain a nuisance scale parameter (\code{\link{sigma}}).
 }

@@ -3,17 +3,18 @@
 \name{print.snaTMB}
 \alias{print.snaTMB}
 \alias{print}
-\title{Print snaTMB output}
+\title{Print Values}
 \usage{
 \method{print}{snaTMB}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
-\item{x}{Object class snaTMB}
+\item{x}{an object used to select a method.}
 
-\item{digits}{Minimal number of significant digits, see \code{\link{print.default}}.}
+\item{digits}{minimal number of \emph{significant} digits, see
+    \code{\link[base]{print.default}}.}
 
-\item{\dots}{Additional arguments for \code{\link{print.default}}.}
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Print snaTMB output
+\code{print} prints its argument and returns it invisibly (via \print{\link{invisible}}(x)). It is a generic function which means that new printing methods can be easily added for new \code{\link{class}}es.
 }

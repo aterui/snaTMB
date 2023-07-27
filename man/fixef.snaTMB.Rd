@@ -3,15 +3,17 @@
 \name{fixef.snaTMB}
 \alias{fixef.snaTMB}
 \alias{fixef}
-\title{Get fixed effects}
+\title{Extract Fixed Effects}
 \usage{
 \method{fixef}{snaTMB}(object, ...)
 }
 \arguments{
-\item{object}{Any fitted model object from which fixed effects estimates can be extracted.}
+\item{object}{any fitted model object from which fixed effects
+   estimates can be extracted.}
 
-\item{\dots}{Additional arguments. Currently none.}
+\item{...}{some methods for this generic function require additional
+   arguments.}
 }
 \description{
-Get fixed effects
+This function is generic; method functions can be written to handle specific classes of objects.
 }

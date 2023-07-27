@@ -1,7 +1,7 @@
 
-#' Get fixed effects
-#' @param object Any fitted model object from which fixed effects estimates can be extracted.
-#' @param \dots	Additional arguments. Currently none.
+#' Extract Fixed Effects
+#' @description This function is generic; method functions can be written to handle specific classes of objects.
+#' @inheritParams nlme::fixef
 #' @importFrom nlme fixef
 #' @aliases fixef fixef.snaTMB
 #' @export fixef
@@ -15,10 +15,9 @@ fixef.snaTMB <- function(object, ...) {
   return(b_table)
 }
 
-
-#' Get variance-covariance for fixed effects
-#' @param object A fitted model object, typically.
-#' @param \dots Additional arguments. Currently none.
+#' Calculate Variance-Covariance Matrix for a Fitted Model Object
+#' @description Returns the variance-covariance matrix of the main parameters of a fitted model object. The “main” parameters of model correspond to those returned by \code{\link{coef}}, and typically do not contain a nuisance scale parameter (\code{\link{sigma}}).
+#' @inheritParams stats::vcov
 #' @aliases vcov vcov.snaTMB
 #' @export
 
@@ -32,10 +31,9 @@ vcov.snaTMB <- function(object, ...) {
 }
 
 
-#' Print snaTMB output
-#' @param x Object class snaTMB
-#' @param digits Minimal number of significant digits, see \code{\link{print.default}}.
-#' @param \dots Additional arguments for \code{\link{print.default}}.
+#' Print Values
+#' @description \code{print} prints its argument and returns it invisibly (via \print{\link{invisible}}(x)). It is a generic function which means that new printing methods can be easily added for new \code{\link{class}}es.
+#' @inheritParams base::print
 #' @aliases print print.snaTMB
 #' @export
 
@@ -78,11 +76,9 @@ print.snaTMB <- function(x,
   invisible(x)
 }
 
-
-#' Summarize snaTMB output
-#' @param object An object for which a summary is desired.
-#' @param digits Minimal number of significant digits, see \code{\link{print.default}}.
-#' @param \dots Additional arguments affecting the summary produced.
+#' Object Summaries
+#' @description \code{summary} is a generic function used to produce result summaries of the results of various model fitting functions. The function invokes particular \code{\link{methods}} which depend on the \code{\link{class}} of the first argument.
+#' @inheritParams base::summary
 #' @aliases summary summary.snaTMB
 #' @export
 

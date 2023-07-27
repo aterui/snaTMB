@@ -3,17 +3,23 @@
 \name{summary.snaTMB}
 \alias{summary.snaTMB}
 \alias{summary}
-\title{Summarize snaTMB output}
+\title{Object Summaries}
 \usage{
 \method{summary}{snaTMB}(object, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
-\item{object}{An object for which a summary is desired.}
+\item{object}{an object for which a summary is desired.}
 
-\item{digits}{Minimal number of significant digits, see \code{\link{print.default}}.}
+\item{digits}{integer, used for number formatting with
+    \code{\link[base]{signif}()} (for \code{summary.default}) or
+    \code{\link[base]{format}()} (for \code{summary.data.frame}).  In
+    \code{summary.default}, if not specified (i.e.,
+    \code{\link[base]{missing}(.)}), \code{signif()} will \emph{not} be called
+    anymore (since \R >= 3.4.0, where the default has been changed to
+    only round in the \code{print} and \code{format} methods).}
 
-\item{\dots}{Additional arguments affecting the summary produced.}
+\item{...}{additional arguments affecting the summary produced.}
 }
 \description{
-Summarize snaTMB output
+\code{summary} is a generic function used to produce result summaries of the results of various model fitting functions. The function invokes particular \code{\link{methods}} which depend on the \code{\link{class}} of the first argument.
 }
