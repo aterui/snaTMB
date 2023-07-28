@@ -32,7 +32,7 @@ vcov.snglmm <- function(object, ...) {
 
 
 #' Print Values
-#' @description \code{print} prints its argument and returns it invisibly (via \print{\link{invisible}}(x)). It is a generic function which means that new printing methods can be easily added for new \code{\link{class}}es.
+#' @description \code{print} prints its argument and returns it invisibly (via \code{\link{invisible}}(x)). It is a generic function which means that new printing methods can be easily added for new \code{\link{class}}es.
 #' @inheritParams base::print
 #' @aliases print print.snglmm
 #' @export

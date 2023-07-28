@@ -16,5 +16,5 @@
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-\code{print} prints its argument and returns it invisibly (via \print{\link{invisible}}(x)). It is a generic function which means that new printing methods can be easily added for new \code{\link{class}}es.
+\code{print} prints its argument and returns it invisibly (via \code{\link{invisible}}(x)). It is a generic function which means that new printing methods can be easily added for new \code{\link{class}}es.
 }
