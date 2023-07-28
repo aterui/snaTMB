@@ -16,4 +16,5 @@ Imports:
     nlme,
     lme4,
     stringr,
-    methods
+    methods,
+    Matrix

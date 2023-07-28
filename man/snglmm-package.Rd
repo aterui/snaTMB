@@ -3,7 +3,7 @@
 \docType{package}
 \name{snglmm-package}
 \alias{snglmm-package}
-\title{Spatial Network Analysis with TMB}
+\title{Spatial Network GLMM with TMB}
 \description{
 snglmm provides a set of functions to perform spatial analysis in stream networks.
 }
