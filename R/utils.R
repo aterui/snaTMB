@@ -1,6 +1,6 @@
 #' Get arguments for MakeADfun
 #'
-#' @inheritParams snaTMB
+#' @inheritParams snglmm
 #' @export
 
 get_arg <- function(formula,
@@ -180,7 +180,7 @@ fitTMB <- function(tmb_arg,
                         map = map_arg,
                         profile = NULL,
                         random = re_arg,
-                        DLL = "snaTMB",
+                        DLL = "snglmm",
                         silent = !verbose))
 
   # fit TMB model
@@ -203,7 +203,7 @@ fitTMB <- function(tmb_arg,
                    sdr = sdr,
                    tmb_arg = tmb_arg)
 
-  class(list_out) <- "snaTMB"
+  class(list_out) <- "snglmm"
 
   return(list_out)
 }
@@ -211,11 +211,11 @@ fitTMB <- function(tmb_arg,
 
 #' Report estimation tables with SEs
 #'
-#' @param x Object class snaTMB
+#' @param x Object class \code{snglmm}
 #' @export
 
 report <- function(x) {
-  if (!inherits(x, "snaTMB")) stop("'x' must be calss 'snaTMB'")
+  if (!inherits(x, "snglmm")) stop("'x' must be calss 'snglmm'")
 
   fit <- x$fit
   sdr <- x$sdr
@@ -272,9 +272,9 @@ format_fixef <- function(sdr, tmb_arg) {
 
 #' Format random effects
 #'
-#' @param fit Output from \code{snaTMB::snaTMB}
+#' @param fit Output from \code{snglmm::snglmm}
 #' @param sdr Output from \code{TMB::sdreport}
-#' @param tmb_arg Output from \code{snaTMB::get_arg}
+#' @param tmb_arg Output from \code{snglmm::get_arg}
 #' @param full Logical. If TRUE, standard errors are printed.
 #' @export
 

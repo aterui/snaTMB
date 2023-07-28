@@ -9,7 +9,7 @@ format_spatial(sdr, tmb_arg, full = FALSE)
 \arguments{
 \item{sdr}{Output from \code{TMB::sdreport}}
 
-\item{tmb_arg}{Output from \code{snaTMB::get_arg}}
+\item{tmb_arg}{Output from \code{snglmm::get_arg}}
 
 \item{full}{Logical. If TRUE, standard errors are printed.}
 }

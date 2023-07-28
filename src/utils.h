@@ -1,4 +1,4 @@
-namespace snaTMB {
+namespace snglmm {
 
 // non-spatial random effect template ------------------------------------------
 
