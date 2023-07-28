@@ -7,7 +7,7 @@
 report(x)
 }
 \arguments{
-\item{x}{Object class snaTMB}
+\item{x}{Object class snglmm}
 }
 \description{
 Report estimation tables with SEs

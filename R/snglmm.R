@@ -1,6 +1,6 @@
 #' Spatial Network Analysis with TMB
-#' @aliases NULL snaTMB-package
-#' @useDynLib snaTMB
+#' @aliases NULL snglmm-package
+#' @useDynLib snglmm
 #' @import RcppEigen TMB
 "_PACKAGE"
 
@@ -19,7 +19,7 @@
 #' @author Akira Terui, \email{hanabi0111@gmail.com}
 #' @export
 
-snaTMB <- function(formula,
+snglmm <- function(formula,
                    data,
                    family = stats::gaussian(),
                    spatial,

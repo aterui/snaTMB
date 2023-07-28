@@ -42,7 +42,7 @@ Type objective_function<Type>::operator() () {
   DATA_VECTOR(y);
   DATA_MATRIX(X);
   DATA_VECTOR(xi);
-  DATA_STRUCT(term, snaTMB::term_t);
+  DATA_STRUCT(term, snglmm::term_t);
   DATA_SPARSE_MATRIX(Z);
   DATA_MATRIX(D);
   DATA_MATRIX(W);
@@ -69,12 +69,12 @@ Type objective_function<Type>::operator() () {
   Type nll, jnll = 0;
 
   //non-spatial random effects
-  jnll += snaTMB::mnll(v, log_theta, term);
+  jnll += snglmm::mnll(v, log_theta, term);
   vector<Type> eta = Z * v;
 
   //spatial random effects
   if (D.sum() != 0) {
-    jnll += snaTMB::snll(u, log_phi, log_lambda, D, W);
+    jnll += snglmm::snll(u, log_phi, log_lambda, D, W);
     eta += u;
   }
 

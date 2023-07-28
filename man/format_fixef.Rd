@@ -9,7 +9,7 @@ format_fixef(sdr, tmb_arg)
 \arguments{
 \item{sdr}{Output from \code{TMB::sdreport}}
 
-\item{tmb_arg}{Output from \code{snaTMB::get_arg}}
+\item{tmb_arg}{Output from \code{snglmm::get_arg}}
 }
 \description{
 Format fixed effects

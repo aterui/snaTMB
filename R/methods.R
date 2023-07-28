@@ -3,11 +3,11 @@
 #' @description This function is generic; method functions can be written to handle specific classes of objects.
 #' @inheritParams nlme::fixef
 #' @importFrom nlme fixef
-#' @aliases fixef fixef.snaTMB
+#' @aliases fixef fixef.snglmm
 #' @export fixef
 #' @export
 
-fixef.snaTMB <- function(object, ...) {
+fixef.snglmm <- function(object, ...) {
   xlabels <- colnames(object$tmb_arg$data_arg$X)
   b_table <- summary.sdreport(object$sdr, "report")[, 1L]
   b_table <- b_table[which(names(b_table) == "b")]
@@ -18,10 +18,10 @@ fixef.snaTMB <- function(object, ...) {
 #' Calculate Variance-Covariance Matrix for a Fitted Model Object
 #' @description Returns the variance-covariance matrix of the main parameters of a fitted model object. The “main” parameters of model correspond to those returned by \code{\link{coef}}, and typically do not contain a nuisance scale parameter (\code{\link{sigma}}).
 #' @inheritParams stats::vcov
-#' @aliases vcov vcov.snaTMB
+#' @aliases vcov vcov.snglmm
 #' @export
 
-vcov.snaTMB <- function(object, ...) {
+vcov.snglmm <- function(object, ...) {
   xlabels <- colnames(object$tmb_arg$data_arg$X)
   m <- object$sdr$cov.fixed
   b_index <- which(colnames(m) == "b")
@@ -34,10 +34,10 @@ vcov.snaTMB <- function(object, ...) {
 #' Print Values
 #' @description \code{print} prints its argument and returns it invisibly (via \print{\link{invisible}}(x)). It is a generic function which means that new printing methods can be easily added for new \code{\link{class}}es.
 #' @inheritParams base::print
-#' @aliases print print.snaTMB
+#' @aliases print print.snglmm
 #' @export
 
-print.snaTMB <- function(x,
+print.snglmm <- function(x,
                          digits = max(3L, getOption("digits") - 3L),
                          ...) {
 
@@ -58,7 +58,7 @@ print.snaTMB <- function(x,
   # random effects
   if (!is.null(x$tmb_arg$rlist)) {
     cat("Random effects:\n")
-    print.data.frame(snaTMB::format_ranef(x$fit, x$sdr, x$tmb_arg),
+    print.data.frame(snglmm::format_ranef(x$fit, x$sdr, x$tmb_arg),
                      digits = digits,
                      row.names = FALSE)
     cat("\n")
@@ -67,7 +67,7 @@ print.snaTMB <- function(x,
   # spatial random effects
   if (!is.null(x$tmb_arg$spatial)) {
     cat("Spatial random effects:\n")
-    print.data.frame(snaTMB::format_spatial(x$sdr, x$tmb_arg),
+    print.data.frame(snglmm::format_spatial(x$sdr, x$tmb_arg),
                      digits = digits,
                      row.names = FALSE)
     cat("\n")
@@ -79,10 +79,10 @@ print.snaTMB <- function(x,
 #' Object Summaries
 #' @description \code{summary} is a generic function used to produce result summaries of the results of various model fitting functions. The function invokes particular \code{\link{methods}} which depend on the \code{\link{class}} of the first argument.
 #' @inheritParams base::summary
-#' @aliases summary summary.snaTMB
+#' @aliases summary summary.snglmm
 #' @export
 
-summary.snaTMB <- function(object,
+summary.snglmm <- function(object,
                            digits = max(3L, getOption("digits") - 3L),
                            ...) {
 
@@ -116,16 +116,16 @@ summary.snaTMB <- function(object,
   # fixed effects -----------------------------------------------------------
 
   # format_fixef(): utility function
-  df_b <- snaTMB::format_fixef(sdr, tmb_arg)
+  df_b <- snglmm::format_fixef(sdr, tmb_arg)
 
   # random effects ----------------------------------------------------------
 
   # format_ranef(): utility function
-  if (!is.null(rlist)) df_re <- snaTMB::format_ranef(fit, sdr, tmb_arg)
+  if (!is.null(rlist)) df_re <- snglmm::format_ranef(fit, sdr, tmb_arg)
 
   # spatial effects ---------------------------------------------------------
 
-  if (!is.null(tmb_arg$spatial)) df_spatial <- snaTMB::format_spatial(sdr, tmb_arg)
+  if (!is.null(tmb_arg$spatial)) df_spatial <- snglmm::format_spatial(sdr, tmb_arg)
 
   # likelihood + others -----------------------------------------------------
 
@@ -188,3 +188,9 @@ summary.snaTMB <- function(object,
   }
 
 }
+
+
+#' Model Predictions
+#' @description \code{predict} is a generic function for predictions from the results of various model fitting functions. The function invokes particular methods which depend on the \code{\link{class}} of the first argument.
+#' @inheritParams stats::predict
+#' @aliases predict predict.snglmm

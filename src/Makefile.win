@@ -1,7 +1,7 @@
-all: snaTMB.dll
+all: snglmm.dll
 
-snaTMB.dll: snaTMB.cpp
-	Rscript --vanilla -e "TMB::compile('snaTMB.cpp')"
+snglmm.dll: snglmm.cpp
+	Rscript --vanilla -e "TMB::compile('snglmm.cpp')"
 
 clean:
 	rm -rf *o

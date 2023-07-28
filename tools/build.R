@@ -31,17 +31,17 @@ lintr::lint_package()
 
 # -------------------------------------------------------------------------
 
-x <- snaTMB(Sepal.Length ~ Sepal.Width + (1 | Species), iris, inits = list(b = c(1, 1)))
+x <- snglmm(Sepal.Length ~ Sepal.Width + (1 | Species), iris, inits = list(b = c(1, 1)))
 summary(x)
 report(x)
 
-y <- lme4::lmer(Sepal.Length ~ Sepal.Width + (1 | Species), iris,
-                REML = F)
-summary(y)
-
-z <- glmmTMB::glmmTMB(Sepal.Length ~ Sepal.Width + (1 | Species), iris,
-                      REML = F)
-summary(z)
+# y <- lme4::lmer(Sepal.Length ~ Sepal.Width + (1 | Species), iris,
+#                 REML = F)
+# summary(y)
+#
+# z <- glmmTMB::glmmTMB(Sepal.Length ~ Sepal.Width + (1 | Species), iris,
+#                       REML = F)
+# summary(z)
 
 
 # spatial -----------------------------------------------------------------
@@ -54,7 +54,7 @@ R <- exp(-D)
 u <- MASS::mvrnorm(n = 1, rep(0, ncol(D)), Sigma = R)
 iris$y <- iris$Sepal.Length + u
 
-x <- snaTMB(y ~ Sepal.Width,
+x <- snglmm(y ~ Sepal.Width,
             iris,
             spatial = "exp",
             D = D)

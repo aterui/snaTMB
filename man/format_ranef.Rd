@@ -7,11 +7,11 @@
 format_ranef(fit, sdr, tmb_arg, full = FALSE)
 }
 \arguments{
-\item{fit}{Output from \code{snaTMB::snaTMB}}
+\item{fit}{Output from \code{snglmm::snglmm}}
 
 \item{sdr}{Output from \code{TMB::sdreport}}
 
-\item{tmb_arg}{Output from \code{snaTMB::get_arg}}
+\item{tmb_arg}{Output from \code{snglmm::get_arg}}
 
 \item{full}{Logical. If TRUE, standard errors are printed.}
 }

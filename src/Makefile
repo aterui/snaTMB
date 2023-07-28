@@ -1,7 +1,7 @@
-all: snaTMB.so
+all: snglmm.so
 
-snaTMB.so: snaTMB.cpp
-	Rscript --vanilla -e "TMB::compile('snaTMB.cpp','-O0 -g')"
+snglmm.so: snglmm.cpp
+	Rscript --vanilla -e "TMB::compile('snglmm.cpp','-O0 -g')"
 
 clean:
 	rm -rf *o
