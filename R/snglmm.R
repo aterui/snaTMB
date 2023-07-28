@@ -181,6 +181,9 @@ kriging <- function(object,
   if (missing(cD))
     stop("A cross-distance matrix is required for regression/universal kriging.")
 
+  if (!is.matrix(cD))
+    stop("Supply 'cD' as a matrix.")
+
   # y: n observed values
   # X: n x p predictor matrix at observed sites
   # X0: m x p predictor matrix at new sites
@@ -231,6 +234,9 @@ kriging <- function(object,
   if (missing(cW)) {
     SIGMA0 <- phi^2 * exp(-lambda * cD)
   } else {
+    if (!is.matrix(cW))
+      stop("Supply 'cW' as a matrix.")
+
     SIGMA0 <- cW * phi^2 * exp(-lambda * cD)
   }
 
