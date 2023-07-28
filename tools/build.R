@@ -72,7 +72,7 @@ cD <- sapply(seq_len(nrow(newcoord)), function(x) {
 
 cW <- matrix(1, dim(cD)[1], dim(cD)[2])
 
-kring(x, newdata = X0, cD = cD, cW = cW)
+kriging(x, newdata = X0, cD = cD, cW = cW)
 
 # pos <- glmmTMB::numFactor(coord)
 # iris$g <- 1

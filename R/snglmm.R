@@ -129,7 +129,7 @@ snglmm <- function(formula,
         } else {
           index <- intersect(parnames, names(inits))
           tmb_arg$par_arg <- utils::modifyList(x = par_arg,
-                                             val = inits[index])
+                                               val = inits[index])
         }
 
       }
@@ -164,14 +164,22 @@ snglmm <- function(formula,
 #' @param cW An optional cross-weight matrix for a spatial model.
 #' @export
 
-kring <- function(object,
-                  newdata,
-                  cD,
-                  cW) {
+kriging <- function(object,
+                    newdata,
+                    cD,
+                    cW) {
+
+  # input check -------------------------------------------------------------
+
+  if (!inherits(object, "snglmm"))
+    stop("object class must be 'snglmm'")
 
   if (is.null(object$tmb_arg$spatial))
     stop("the model contains no spatial term;
          kriging methods are not applicable.")
+
+  if (missing(cD))
+    stop("A cross-distance matrix is required for regression/universal kriging.")
 
   # y: n observed values
   # X: n x p predictor matrix at observed sites
@@ -190,15 +198,44 @@ kring <- function(object,
   phi <- sdr[rid == "phi", 1L]
   lambda <- sdr[rid == "lambda", 1L]
 
+  # dimension check cD cW
+  ## row
+  vrows <- c(`cD` = nrow(cD),
+             `cW` = if (!missing(cW)) nrow(cW))
+
+  if (any(vrows != nrow(X)))
+    stop(paste("Dimension mismatch.",
+               sQuote(names(vrows)[vrows != nrow(X)]),
+               "must have",
+               nrow(X),
+               "rows (the number of observations in the original model)."))
+
+  ## column
+  vcols <- c(`cD` = ncol(cD),
+             `cW` = if (!missing(cW)) ncol(cW))
+
+  if (any(vcols != nrow(X0)))
+    stop(paste("Dimension mismatch.",
+               sQuote(names(vcols)[vcols != nrow(X0)]),
+               "must have",
+               nrow(X0),
+               "columns (the number of prediction sites)."))
+
+
   # SIGMA: n x n vcov matrix at obseved sites
   # SIGMA0: n x m vcov matrix of at new sites
-  # TAU: n x n precision matrix at obseved sites
+  # TAU: n x n precision matrix at observed sites
   SIGMA <- W * (phi^2 * exp(-lambda * D))
-  SIGMA0 <- cW * exp(-lambda * cD)
   TAU <- Matrix::solve(SIGMA)
 
-  # n vector of residuals at observed sites
-  u <- attr(fit, "report")$u
+  if (missing(cW)) {
+    SIGMA0 <- phi^2 * exp(-lambda * cD)
+  } else {
+    SIGMA0 <- cW * phi^2 * exp(-lambda * cD)
+  }
+
+  # u: n vector of residuals at observed sites
+  u <- attr(object$fit, "report")$u
 
   # nu: m x 1 weighted residuals
   # z: predicted values at m new sites
