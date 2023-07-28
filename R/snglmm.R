@@ -234,6 +234,7 @@ kriging <- function(object,
   if (missing(cW)) {
     SIGMA0 <- phi^2 * exp(-lambda * cD)
   } else {
+
     if (!is.matrix(cW))
       stop("Supply 'cW' as a matrix.")
 
