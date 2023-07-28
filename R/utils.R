@@ -211,7 +211,7 @@ fitTMB <- function(tmb_arg,
 
 #' Report estimation tables with SEs
 #'
-#' @param x Object class snglmm
+#' @param x Object class \code{snglmm}
 #' @export
 
 report <- function(x) {

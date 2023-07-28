@@ -54,16 +54,28 @@ R <- exp(-D)
 u <- MASS::mvrnorm(n = 1, rep(0, ncol(D)), Sigma = R)
 iris$y <- iris$Sepal.Length + u
 
-x <- snglmm(y ~ Sepal.Width,
-            iris,
-            spatial = "exp",
-            D = D)
-x
-summary(x)
+(x <- snglmm(y ~ Sepal.Width,
+             iris,
+             spatial = "exp",
+             D = D))
 
+x0 <- runif(5, min(iris$Sepal.Width), max(iris$Sepal.Width))
+X0 <- model.matrix(~x0)
 
-pos <- glmmTMB::numFactor(coord)
-iris$g <- 1
-iris$pos <- pos
-fit <- glmmTMB::glmmTMB(y ~ Sepal.Width + exp(0 + pos|g), iris, dispformula = ~0)
+newcoord <- cbind(rnorm(5), rnorm(5))
 
+cD <- sapply(seq_len(nrow(newcoord)), function(x) {
+  d0 <- data.matrix(dist(rbind(coord, newcoord[x, ])))
+  cout <- d0[-nrow(d0), ncol(d0)]
+  return(cout)
+})
+
+cW <- matrix(1, dim(cD)[1], dim(cD)[2])
+
+kring(x, newdata = X0, cD = cD, cW = cW)
+
+# pos <- glmmTMB::numFactor(coord)
+# iris$g <- 1
+# iris$pos <- pos
+# m <- glmmTMB::glmmTMB(y ~ Sepal.Width + exp(0 + pos|g), iris, dispformula = ~0)
+#

@@ -154,3 +154,56 @@ snglmm <- function(formula,
 
   opt
 }
+
+
+#' Perform Regression/Universal Kriging
+#'
+#' @param object Object class \code{snglmm}
+#' @param newdata A required data frame containing predictor values at new sites.
+#' @param cD A required cross-distance matrix for a spatial model.
+#' @param cW An optional cross-weight matrix for a spatial model.
+#' @export
+
+kring <- function(object,
+                  newdata,
+                  cD,
+                  cW) {
+
+  if (is.null(object$tmb_arg$spatial))
+    stop("the model contains no spatial term;
+         kriging methods are not applicable.")
+
+  # y: n observed values
+  # X: n x p predictor matrix at observed sites
+  # X0: m x p predictor matrix at new sites
+  # D: n x n distance matrix
+  # W: n x n weight matrix
+  y <- object$tmb_arg$data_arg$y
+  X <- object$tmb_arg$data_arg$X
+  X0 <- newdata
+  D <- object$tmb_arg$data_arg$D
+  W <- object$tmb_arg$data_arg$W
+
+  sdr <- summary(object$sdr, "report")
+  rid <- rownames(sdr)
+  beta <- sdr[rid == "b", 1L]
+  phi <- sdr[rid == "phi", 1L]
+  lambda <- sdr[rid == "lambda", 1L]
+
+  # SIGMA: n x n vcov matrix at obseved sites
+  # SIGMA0: n x m vcov matrix of at new sites
+  # TAU: n x n precision matrix at obseved sites
+  SIGMA <- W * (phi^2 * exp(-lambda * D))
+  SIGMA0 <- cW * exp(-lambda * cD)
+  TAU <- Matrix::solve(SIGMA)
+
+  # n vector of residuals at observed sites
+  u <- attr(fit, "report")$u
+
+  # nu: m x 1 weighted residuals
+  # z: predicted values at m new sites
+  nu <- drop(t(SIGMA0) %*% TAU %*% u)
+  z <- drop(X0 %*% beta) + nu
+
+  return(z)
+}
