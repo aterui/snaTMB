@@ -1,4 +1,4 @@
-#' Spatial Network Analysis with TMB
+#' Spatial Network GLMM with TMB
 #' @aliases NULL snglmm-package
 #' @useDynLib snglmm
 #' @import RcppEigen TMB
