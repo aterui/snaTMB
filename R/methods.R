@@ -184,7 +184,7 @@ summary.snglmm <- function(object,
                format(p_table[which(rownames(p_table) == "sigma"), "Estimate"],
                       digits = digits)))
     cat("\n")
-    if (!is.null(tmb_arg$spatial)) cat("Note: family-specific dispersion parameter is fixed at zero to avoid overparameterization (non-spatial standard deviation represents a comaptible dispersion parameter)")
+    if (!sigma_in) cat("Note: family-specific dispersion parameter is fixed at zero")
   }
 
 }

@@ -13,6 +13,7 @@
 #' @param spatial Model type used for a spatial model (either \code{"exp"} or \code{"gaussian"}). Disabled by default.
 #' @param D An optional distance matrix for a spatial model.
 #' @param W An optional spatial weight matrix for a spatial model.
+#' @param sigma_in An optional argument for on/off non-spatial normal error variance. If \code{TRUE}, a non-spatial normal error variance will be included in a spatial model. Default \code{TRUE}.
 #' @param verbose Logical. If \code{TRUE}, print maximum gradient \code{mgc} components while fitting.
 #' @param inits A list of initial parameter values.
 #' @param control Optional arguments passed to \code{\link{nlminb}}.
@@ -25,6 +26,7 @@ snglmm <- function(formula,
                    spatial,
                    D,
                    W,
+                   sigma_in,
                    verbose = FALSE,
                    inits,
                    control = list()) {
@@ -57,7 +59,7 @@ snglmm <- function(formula,
 
   # get arguments for fitTMB ------------------------------------------------
 
-  index <- match(x = c("formula", "data", "spatial", "D", "W"),
+  index <- match(x = c("formula", "data", "spatial", "D", "W", "sigma_in"),
                  table = names(tmb_arg),
                  nomatch = 0L)
   tmb_arg <- tmb_arg[c(1L, index)]

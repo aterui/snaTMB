@@ -6,9 +6,12 @@
 get_arg <- function(formula,
                     data,
                     family,
+                    sigma_in = TRUE,
                     spatial = NULL,
                     D = NULL,
                     W = NULL) {
+
+  fam <- family
 
   # create base arguments for MakeADFun -------------------------------------
 
@@ -108,17 +111,20 @@ get_arg <- function(formula,
     }
 
     par_arg$u <- rep(0, nrow(fr))
-    par_arg$log_sigma <- log(sqrt(.Machine$double.eps))
     re_arg <- c(re_arg, "u")
-    map_arg$log_sigma <- factor(NA)
+
+    if (sigma_in && fam$family %in% c("gaussian")) {
+      par_arg$log_sigma <- log(1)
+    } else {
+      par_arg$log_sigma <- log(sqrt(.Machine$double.eps))
+      map_arg$log_sigma <- factor(NA)
+    }
   }
 
   par_arg$log_phi <- 0
   par_arg$log_lambda <- 0
 
   # family specific arguments -----------------------------------------------
-
-  fam <- family
 
   .valid_link <- c(identity = 0L,
                    log = 1L)

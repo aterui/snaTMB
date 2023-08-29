@@ -25,7 +25,8 @@ iris$y <- iris$Sepal.Length + u
 (x <- snglmm(y ~ Sepal.Width,
              iris,
              spatial = "exp",
-             D = D))
+             D = D,
+             sigma_in = T))
 
 x0 <- runif(5, min(iris$Sepal.Width), max(iris$Sepal.Width))
 X0 <- model.matrix(~x0)
