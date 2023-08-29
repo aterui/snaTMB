@@ -8,6 +8,7 @@ snglmm(
   formula,
   data,
   family = stats::gaussian(),
+  sigma_in,
   spatial,
   D,
   W,
@@ -22,6 +23,8 @@ snglmm(
 \item{data}{An optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula).}
 
 \item{family}{Family assumed for an error distribution. Default \code{gaussian()}.}
+
+\item{sigma_in}{An optional argument for on/off non-spatial normal error variance. If \code{TRUE}, a non-spatial normal error variance will be included in a spatial model. Default \code{TRUE}.}
 
 \item{spatial}{Model type used for a spatial model (either \code{"exp"} or \code{"gaussian"}). Disabled by default.}
 

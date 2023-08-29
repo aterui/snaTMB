@@ -10,10 +10,10 @@
 #' @param formula An object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted.
 #' @param data An optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula).
 #' @param family Family assumed for an error distribution. Default \code{gaussian()}.
+#' @param sigma_in An optional argument for on/off non-spatial normal error variance. If \code{TRUE}, a non-spatial normal error variance will be included in a spatial model. Default \code{TRUE}.
 #' @param spatial Model type used for a spatial model (either \code{"exp"} or \code{"gaussian"}). Disabled by default.
 #' @param D An optional distance matrix for a spatial model.
 #' @param W An optional spatial weight matrix for a spatial model.
-#' @param sigma_in An optional argument for on/off non-spatial normal error variance. If \code{TRUE}, a non-spatial normal error variance will be included in a spatial model. Default \code{TRUE}.
 #' @param verbose Logical. If \code{TRUE}, print maximum gradient \code{mgc} components while fitting.
 #' @param inits A list of initial parameter values.
 #' @param control Optional arguments passed to \code{\link{nlminb}}.
@@ -23,10 +23,10 @@
 snglmm <- function(formula,
                    data,
                    family = stats::gaussian(),
+                   sigma_in,
                    spatial,
                    D,
                    W,
-                   sigma_in,
                    verbose = FALSE,
                    inits,
                    control = list()) {

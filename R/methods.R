@@ -184,7 +184,8 @@ summary.snglmm <- function(object,
                format(p_table[which(rownames(p_table) == "sigma"), "Estimate"],
                       digits = digits)))
     cat("\n")
-    if (!sigma_in) cat("Note: family-specific dispersion parameter is fixed at zero")
+    if (any(names(tmb_arg$map_arg) == "log_sigma"))
+      cat("Note: family-specific dispersion parameter is fixed at zero")
   }
 
 }
